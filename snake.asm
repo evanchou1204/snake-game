@@ -68,17 +68,23 @@ ENDM
 .code
 main PROC
     CALL printStart
+L1:
     CALL printMenuDiff
     CALL ClrScr
     CALL showWalls
 	.IF difficulty == 1
-        CALL EasyGame   
+        CALL EasyGame
 	.ELSEIF difficulty == 2
 		CALL MediumGame
 	.ELSEIF difficulty == 3
-		CALL HardGame  
+		CALL HardGame
 	.ENDIF
 
+    CMP difficulty,4
+    JE ExitLoop
+	JMP L1
+
+ExitLoop:
     INVOKE ExitProcess, 0
 
     RET
@@ -104,7 +110,7 @@ L3:
 
 L4:
     INVOKE Sleep, 900
-    CALL gameOver
+    CALL printGameOver
 
     RET
 EasyGame ENDP
@@ -595,6 +601,51 @@ printMenuDiffread:
     jmp printMenuDiffread;
 printMenuDiff ENDP
 
+printGameOver PROC uses eax edx ebx
+    LOCAL input_rec:INPUT_RECORD
+	call Clrscr
+	INVOKE GetStdHandle, STD_OUTPUT_HANDLE; Get the console ouput handle
+    mov outputHandle, eax ; save console handle
+
+    INVOKE GetStdHandle,STD_INPUT_HANDLE; Get the console input handle
+    mov inputHandle, eax ; save console handle
+
+	invoke SetConsoleMode, inputHandle, 090h;
+
+	CALL gameOver;
+
+printGameOverread:
+    INVOKE ReadConsoleInput,
+        inputHandle,   ; handle to console-input buffer
+        ADDR input_rec,  ; ptr to input buffer
+        1,                           ; request number of records
+        ADDR bytesRead               ; ptr to number of records read
+    .IF input_rec.EventType!=2
+        jmp printGameOverread;
+    .ENDIF
+    .IF input_rec.Event.dwButtonState!=1
+        jmp printGameOverread;
+    .ENDIF
+
+    .IF (input_rec.Event.dwMousePosition.Y==19) && (input_rec.Event.dwEventFlags == 0);
+        movzx eax,input_rec.Event.dwMousePosition.X;
+        call WriteInt;
+		.IF (input_rec.Event.dwMousePosition.X>=33) && (input_rec.Event.dwMousePosition.X<=46)
+            ret
+        .ENDIF
+	.ENDIF
+	.IF (input_rec.Event.dwMousePosition.Y==21) && (input_rec.Event.dwEventFlags == 0);
+        movzx eax,input_rec.Event.dwMousePosition.X;
+        call WriteInt;
+		.IF (input_rec.Event.dwMousePosition.X>=36) && (input_rec.Event.dwMousePosition.X<=44)
+            mov difficulty,4;
+            ret
+        .ENDIF
+	.ENDIF
+
+    jmp printGameOverread;
+printGameOver ENDP
+
 DrawTitle PROC
 	CALL	ClrScr
 	CALL	showWalls
@@ -629,7 +680,7 @@ DrawTitle PROC
 	mWrite	" _________|______|__ @@@@@@ @       @ @   @   @ @@@@@@ __|______|_______"
 	mgoTo 2, 20
 	mWrite	"                       click anywhere to continue...                    "
-	mgoTo 54, 20
+	mgoTo 54, 40
 					
 	RET
 DrawTitle ENDP
@@ -695,6 +746,11 @@ gameOver PROC
 	mWrite	"                  /=\ /=\ /=\         | | |"
 	mgoTo 2, 17
 	mWrite	"  ________________[_]_[_]_[_]________/_]_[_\_______________________"
+	mgoTo 2, 19
+	mWrite	"                               [ try again ]                            "
+	mgoTo 2, 21
+	mWrite	"                                  [ exit ]                              "
+
 	mgoTo 67, 9
 	MOV	EAX, score						
 	CALL WriteInt
@@ -732,8 +788,7 @@ gameOver PROC
 		mgoTo 55, 13
 		mWrite	" Legendary!!! "
 	End07:
-	INVOKE	Sleep, 100														
-	mgoTo 25,20
+
 	RET			
 
 gameOver ENDP
