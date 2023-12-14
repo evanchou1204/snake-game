@@ -58,11 +58,18 @@ ENDM
 	tailY BYTE 0
 	score DWORD 0
 	speed DWORD 80 ;控制蛇的速度
+	difficulty DWORD 9 ; 4 or 6 or 9;難度
+
+	outputHandle DWORD 0
+	inputHandle  DWORD 0
+	bytesRead    DWORD 0 ; 偵測鼠標點擊位置
+
 
 .code
 main PROC
 	CALL DrawTitle
-	CALL	ClrScr
+	CALL printMenuDiff
+	CALL ClrScr
 	CALL showWalls
 	CALL generateFood
 	L1:
@@ -449,6 +456,52 @@ showWalls PROC
 		ret
 showWalls ENDP
 
+printMenuDiff PROC uses eax edx ebx
+    LOCAL input_rec:INPUT_RECORD
+	call Clrscr
+	INVOKE GetStdHandle, STD_OUTPUT_HANDLE; Get the console ouput handle
+    mov outputHandle, eax ; save console handle
+
+    INVOKE GetStdHandle,STD_INPUT_HANDLE; Get the console input handle
+    mov inputHandle, eax ; save console handle
+
+	invoke SetConsoleMode, inputHandle, 090h;
+
+	CALL DrawMenu;
+
+printMenuStartread:
+    INVOKE ReadConsoleInput,
+        inputHandle,   ; handle to console-input buffer
+        ADDR input_rec,  ; ptr to input buffer
+        1,                           ; request number of records
+        ADDR bytesRead               ; ptr to number of records read
+    .IF input_rec.EventType!=2
+        jmp printMenuStartread;
+    .ENDIF
+    .IF input_rec.Event.dwButtonState!=1
+        jmp printMenuStartread;
+    .ENDIF
+
+    .IF (input_rec.Event.dwMousePosition.X>=34) && (input_rec.Event.dwMousePosition.X<=44) && (input_rec.Event.dwEventFlags == 0);
+        movzx eax,input_rec.Event.dwMousePosition.X;
+        call WriteInt;
+		.IF input_rec.Event.dwMousePosition.Y==8
+            mov difficulty,4;
+            ret
+        .ENDIF
+        .IF input_rec.Event.dwMousePosition.Y==10
+            mov difficulty,6;
+            ret
+        .ENDIF
+        .IF input_rec.Event.dwMousePosition.Y==12
+            mov difficulty,9;
+            ret
+        .ENDIF
+     .ENDIF
+
+    jmp printMenuStartread;
+printMenuDiff ENDP
+
 DrawTitle PROC
 	CALL	ClrScr
 	CALL	showWalls
@@ -489,6 +542,38 @@ DrawTitle PROC
 	   
 	RET
 DrawTitle ENDP
+
+DrawMenu PROC
+	CALL	ClrScr
+	CALL	showWalls
+
+	mgoTo 2, 4
+	mWrite "      ______________________ Choose Difficulty ______________________ "
+	mgoTo 2, 6
+	mWrite "                       ____________________________               "
+	mgoTo 2, 7
+	mWrite "                      |                            |              "
+	mgoTo 2, 8
+	mWrite "                      |         [  Easy  ]         |              "
+	mgoTo 2, 9
+	mWrite "                      |                            |              "
+	mgoTo 2, 10
+	mWrite "                      |         [ Medium ]         |              "
+	mgoTo 2, 11
+	mWrite "                      |                            |              "
+	mgoTo 2, 12
+	mWrite "                      |         [  Hard  ]         |              "
+	mgoTo 2, 13 
+	mWrite "                      |                            |              "
+	mgoTo 2, 14 
+	mWrite "                      |_____________  _____________|              "
+	mgoTo 25, 20					
+
+	CALL	WaitMsg
+	mgoTo 0, 0  
+	   
+	RET
+DrawMenu ENDP
 
 gameOver PROC
 	CALL	Clrscr
