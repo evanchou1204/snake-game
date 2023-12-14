@@ -67,35 +67,94 @@ ENDM
 
 .code
 main PROC
-	CALL printStart
-	CALL printMenuDiff
-	CALL ClrScr
-	CALL showWalls
-	CALL generateFood
-	L1:
-		CALL Grow
-		CALL KeySync
-	L2:
-		CALL IsCollision								
-		CMP	EAX, 0
-		JE L3
+    CALL printStart
+    CALL printMenuDiff
+    CALL ClrScr
+    CALL showWalls
+	.IF difficulty == 1
+        CALL EasyGame   
+	.ELSEIF difficulty == 2
+		CALL MediumGame
+	.ELSEIF difficulty == 3
+		CALL HardGame  
+	.ENDIF
 
-		CMP	EAX, 1
-		JE L4
-		CALL Across
-	L3:
-		CALL moveSnake
-		INVOKE Sleep, speed
-	JMP L1
-		
-	L4:
-	INVOKE Sleep, 900
-	CALL gameOver
-	
-	INVOKE	ExitProcess, 0
+    INVOKE ExitProcess, 0
 
-	RET
+    RET
 main ENDP
+
+EasyGame PROC
+    CALL generateFood
+L1:
+    CALL Grow
+    CALL KeySync
+L2:
+    CALL IsCollision
+    CMP EAX, 0
+    JE L3
+
+    CMP EAX, 1
+    JE L4
+    CALL Across
+L3:
+    CALL moveSnake
+    INVOKE Sleep, speed
+    JMP L1
+
+L4:
+    INVOKE Sleep, 900
+    CALL gameOver
+
+    RET
+EasyGame ENDP
+
+MediumGame PROC
+    CALL generateFood
+L1:
+    CALL Grow
+    CALL KeySync
+L2:
+    CALL IsCollision
+    CMP EAX, 0
+    JE L3
+    JMP L4
+
+L3:
+    CALL moveSnake
+    INVOKE Sleep, speed
+    JMP L1
+
+L4:
+    INVOKE Sleep, 900
+    CALL gameOver
+
+    RET
+MediumGame ENDP
+
+HardGame PROC
+    CALL generateFood
+L1:
+    CALL Grow
+    CALL KeySync
+L2:
+    CALL IsCollision
+    CMP EAX, 0
+    JE L3
+    JMP L4
+
+L3:
+    CALL moveSnake
+    INVOKE Sleep, speed
+    JMP L1
+
+L4:
+    INVOKE Sleep, 900
+    CALL gameOver
+
+    RET
+HardGame ENDP
+
 
 SetDirection PROC, R:BYTE, L:BYTE, U:BYTE, D:BYTE					; Values set in KeySync, either 0 or 1
 	MOV	DL, R										
@@ -359,9 +418,16 @@ Grow PROC
         ADD bodyLength, 2	
 		ADD score, 10
 		MOV EDX, score
-		cmp EDX, 200 ;如果超過200分後就不再加速
-		JGE X00
-		SUB speed, 2 ;每次吃到東西就增加速度
+		.IF difficulty == 1
+			JMP X00                   ;不加速
+		.ELSEIF difficulty == 2
+			cmp EDX, 200              ;如果超過200分後就不再加速
+			JGE X00
+			SUB speed, 2              ;每次吃到東西就增加速度
+		.ELSEIF difficulty == 3
+			 SUB speed, 3             ;每次吃到東西就增加速度
+		.ENDIF
+
    
 	X00:
         RET
@@ -513,15 +579,15 @@ printMenuDiffread:
         movzx eax,input_rec.Event.dwMousePosition.X;
         call WriteInt;
 		.IF input_rec.Event.dwMousePosition.Y==8
-            mov difficulty,4;
+            mov difficulty,1;
             ret
         .ENDIF
         .IF input_rec.Event.dwMousePosition.Y==10
-            mov difficulty,6;
+            mov difficulty,2;
             ret
         .ENDIF
         .IF input_rec.Event.dwMousePosition.Y==12
-            mov difficulty,9;
+            mov difficulty,3;
             ret
         .ENDIF
      .ENDIF
