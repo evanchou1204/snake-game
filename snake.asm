@@ -67,7 +67,7 @@ ENDM
 
 .code
 main PROC
-	CALL DrawTitle
+	CALL printStart
 	CALL printMenuDiff
 	CALL ClrScr
 	CALL showWalls
@@ -456,6 +456,33 @@ showWalls PROC
 		ret
 showWalls ENDP
 
+printStart PROC uses eax edx ebx
+    LOCAL menuStartPosition:COORD,input_rec:INPUT_RECORD
+    call Clrscr
+    INVOKE GetStdHandle, STD_OUTPUT_HANDLE; Get the console ouput handle
+    mov outputHandle, eax ; save console handle
+
+    INVOKE GetStdHandle,STD_INPUT_HANDLE; Get the console input handle
+    mov inputHandle, eax ; save console handle
+
+    invoke SetConsoleMode, inputHandle, 090h;
+
+    CALL DrawTitle
+printStartread:
+    INVOKE ReadConsoleInput,
+        inputHandle,   ; handle to console-input buffer
+        ADDR input_rec,  ; ptr to input buffer
+        1,                           ; request number of records
+        ADDR bytesRead               ; ptr to number of records read
+    .IF input_rec.EventType!=2
+        jmp printStartread;
+    .ENDIF
+    .IF input_rec.Event.dwButtonState!=1
+        jmp printStartread;
+    .ENDIF
+    ret
+printStart ENDP
+
 printMenuDiff PROC uses eax edx ebx
     LOCAL input_rec:INPUT_RECORD
 	call Clrscr
@@ -469,17 +496,17 @@ printMenuDiff PROC uses eax edx ebx
 
 	CALL DrawMenu;
 
-printMenuStartread:
+printMenuDiffread:
     INVOKE ReadConsoleInput,
         inputHandle,   ; handle to console-input buffer
         ADDR input_rec,  ; ptr to input buffer
         1,                           ; request number of records
         ADDR bytesRead               ; ptr to number of records read
     .IF input_rec.EventType!=2
-        jmp printMenuStartread;
+        jmp printMenuDiffread;
     .ENDIF
     .IF input_rec.Event.dwButtonState!=1
-        jmp printMenuStartread;
+        jmp printMenuDiffread;
     .ENDIF
 
     .IF (input_rec.Event.dwMousePosition.X>=34) && (input_rec.Event.dwMousePosition.X<=44) && (input_rec.Event.dwEventFlags == 0);
@@ -499,7 +526,7 @@ printMenuStartread:
         .ENDIF
      .ENDIF
 
-    jmp printMenuStartread;
+    jmp printMenuDiffread;
 printMenuDiff ENDP
 
 DrawTitle PROC
@@ -534,12 +561,10 @@ DrawTitle PROC
 	mWrite	"          |      |   @    @  @@@@@@@  @  @ @  @ @        |      |       "
 	mgoTo 2, 17
 	mWrite	" _________|______|__ @@@@@@ @       @ @   @   @ @@@@@@ __|______|_______"
+	mgoTo 2, 20
+	mWrite	"                       click anywhere to continue...                    "
+	mgoTo 54, 20
 					
-	mgoTo 25, 20
-
-	CALL	WaitMsg
-	mgoTo 0, 0  
-	   
 	RET
 DrawTitle ENDP
 
@@ -568,9 +593,6 @@ DrawMenu PROC
 	mgoTo 2, 14 
 	mWrite "                      |_____________  _____________|              "
 	mgoTo 25, 20					
-
-	CALL	WaitMsg
-	mgoTo 0, 0  
 	   
 	RET
 DrawMenu ENDP
