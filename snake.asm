@@ -63,9 +63,9 @@ ENDM
 	outputHandle DWORD 0
 	inputHandle  DWORD 0
 	bytesRead    DWORD 0 ; 偵測鼠標點擊位置
-	firstScore DWORD 90 ;前三高分
-	secondScore DWORD 80
-	thirdScore DWORD 70
+	firstScore DWORD 0 ;前三高分
+	secondScore DWORD 0
+	thirdScore DWORD 0
 
 
 .code
@@ -81,6 +81,7 @@ L1:
 	mov Left , 0
 	mov Up , 0
 	mov Down , 0
+	mov score , 0
 
     CALL printMenuDiff
     CALL ClrScr
@@ -768,6 +769,42 @@ gameOver PROC
 	MOV	EAX, score						
 	CALL WriteInt
 
+	cmp eax , thirdScore
+	jb no_change
+	je no_change
+	cmp eax , secondScore
+	jb change_third
+	je no_change
+	cmp eax , firstScore	
+	je no_change
+	jb change_second
+	ja change_first
+
+no_change:
+	jmp done
+ 
+change_third:
+	mov ebx , score
+	mov thirdScore, ebx 
+	jmp done
+
+change_second:
+	mov ebx , secondScore
+	mov thirdScore, ebx 
+	mov ebx , score
+	mov secondScore, ebx
+	jmp done
+
+change_first:
+	mov ebx , secondScore
+	mov thirdScore, ebx 
+	mov ebx , firstScore
+	mov secondScore, ebx
+	mov ebx , score
+	mov firstScore , ebx
+	jmp done
+	
+done:
 	mgoTo 61, 9
 	MOV	EAX, firstScore						
 	CALL WriteInt
@@ -779,7 +816,7 @@ gameOver PROC
 	mgoTo 61, 11
 	MOV	EAX, thirdScore						
 	CALL WriteInt
-
+	
 	mgoTo 55, 6
 	CMP score, 50
 	JBE S01
