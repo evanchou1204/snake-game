@@ -63,12 +63,25 @@ ENDM
 	outputHandle DWORD 0
 	inputHandle  DWORD 0
 	bytesRead    DWORD 0 ; 偵測鼠標點擊位置
+	firstScore DWORD 90 ;前三高分
+	secondScore DWORD 80
+	thirdScore DWORD 70
 
 
 .code
 main PROC
     CALL printStart
 L1:
+	mov bodyLength , 6
+	mov speed , 80
+	mov currentX, 40
+	mov currentY, 10
+	;INVOKE  SetDirection, 1, 0, 0, 0
+	mov Right , 1
+	mov Left , 0
+	mov Up , 0
+	mov Down , 0
+
     CALL printMenuDiff
     CALL ClrScr
     CALL showWalls
@@ -133,7 +146,7 @@ L3:
 
 L4:
     INVOKE Sleep, 900
-    CALL gameOver
+    CALL printGameOver
 
     RET
 MediumGame ENDP
@@ -156,7 +169,7 @@ L3:
 
 L4:
     INVOKE Sleep, 900
-    CALL gameOver
+    CALL printGameOver
 
     RET
 HardGame ENDP
@@ -630,7 +643,7 @@ printGameOverread:
     .IF (input_rec.Event.dwMousePosition.Y==19) && (input_rec.Event.dwEventFlags == 0);
         movzx eax,input_rec.Event.dwMousePosition.X;
         call WriteInt;
-		.IF (input_rec.Event.dwMousePosition.X>=33) && (input_rec.Event.dwMousePosition.X<=46)
+		.IF (input_rec.Event.dwMousePosition.X>=33) && (input_rec.Event.dwMousePosition.X<=47)
             ret
         .ENDIF
 	.ENDIF
@@ -708,7 +721,7 @@ DrawMenu PROC
 	mgoTo 2, 13 
 	mWrite "                      |                            |              "
 	mgoTo 2, 14 
-	mWrite "                      |_____________  _____________|              "
+	mWrite "                      |____________________________|              "
 	mgoTo 25, 20					
 	   
 	RET
@@ -719,7 +732,7 @@ gameOver PROC
 	CALL	showWalls
 
 	mgoTo 2, 4									
-	mWrite	"                                                                "	
+	mWrite	"                                                   Your score:"	
 	mgoTo 2, 5
 	mWrite	"                 GAME OVER!!           /~\"
 	mgoTo 2, 6
@@ -727,13 +740,13 @@ gameOver PROC
 	mgoTo 2, 7
 	mWrite	"                                      _\=/_"
 	mgoTo 2, 8
-	mWrite	"                      ___        #   /  _  \"
+	mWrite	"                      ___        #   /  _  \       Top 3:"
 	mgoTo 2, 9
-	mWrite	"                     / ()\        \\//|/.\|\\      Your score:"
+	mWrite	"                     / ()\        \\//|/.\|\\      1          "
 	mgoTo 2, 10
-	mWrite	"                   _|_____|_       \/  \_/  ||"
+	mWrite	"                   _|_____|_       \/  \_/  ||     2          "
 	mgoTo 2, 11
-	mWrite	"                  | | === | |         |\ /| ||"
+	mWrite	"                  | | === | |         |\ /| ||     3          "
 	mgoTo 2, 12
 	mWrite	"                  |_|  O  |_|         \_ _/ #"
 	mgoTo 2, 13
@@ -747,15 +760,27 @@ gameOver PROC
 	mgoTo 2, 17
 	mWrite	"  ________________[_]_[_]_[_]________/_]_[_\_______________________"
 	mgoTo 2, 19
-	mWrite	"                               [ try again ]                            "
+	mWrite	"                               [ try  again ]                            "
 	mgoTo 2, 21
 	mWrite	"                                  [ exit ]                              "
 
-	mgoTo 67, 9
+	mgoTo 67, 4
 	MOV	EAX, score						
 	CALL WriteInt
 
-	mgoTo 55, 11
+	mgoTo 61, 9
+	MOV	EAX, firstScore						
+	CALL WriteInt
+
+	mgoTo 61, 10
+	MOV	EAX, secondScore						
+	CALL WriteInt
+
+	mgoTo 61, 11
+	MOV	EAX, thirdScore						
+	CALL WriteInt
+
+	mgoTo 55, 6
 	CMP score, 50
 	JBE S01
 	CMP score, 100
