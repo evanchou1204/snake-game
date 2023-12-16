@@ -231,7 +231,7 @@ moveSnake PROC
 	mgoTo tailX, tailY
 	mWrite " "
 
-	mgoTo	35, 0		; Displays all info on bottom of screen
+	mgoTo	33, 0		; Displays all info on bottom of screen
 	mWrite	"Score:  "    
 	MOV	EAX, score	
 	CALL	WriteInt	
