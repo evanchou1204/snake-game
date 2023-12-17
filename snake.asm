@@ -642,17 +642,17 @@ printGameOverread:
         jmp printGameOverread;
     .ENDIF
 
-    .IF (input_rec.Event.dwMousePosition.Y==19) && (input_rec.Event.dwEventFlags == 0);
+    .IF (input_rec.Event.dwMousePosition.Y==21) && (input_rec.Event.dwEventFlags == 0);
         movzx eax,input_rec.Event.dwMousePosition.X;
         call WriteInt;
-		.IF (input_rec.Event.dwMousePosition.X>=33) && (input_rec.Event.dwMousePosition.X<=47)
+		.IF (input_rec.Event.dwMousePosition.X>=55) && (input_rec.Event.dwMousePosition.X<=68)
             ret
         .ENDIF
 	.ENDIF
-	.IF (input_rec.Event.dwMousePosition.Y==21) && (input_rec.Event.dwEventFlags == 0);
+	.IF (input_rec.Event.dwMousePosition.Y==23) && (input_rec.Event.dwEventFlags == 0);
         movzx eax,input_rec.Event.dwMousePosition.X;
         call WriteInt;
-		.IF (input_rec.Event.dwMousePosition.X>=36) && (input_rec.Event.dwMousePosition.X<=44)
+		.IF (input_rec.Event.dwMousePosition.X>=58) && (input_rec.Event.dwMousePosition.X<=65)
             mov difficulty,4;
             ret
         .ENDIF
@@ -748,39 +748,48 @@ gameOver PROC
 	CALL	Clrscr
 
 	mgoTo 2, 4									
-	mWrite	" ***************************************************************************	      Your score:				"	
+	mWrite	"                                                                                                     				"	
 	mgoTo 2, 5
-	mWrite	" *   _______ _______ __   __ _______    _______ __   __ _______ ________   *                                    "
+	mWrite	"                  ______                                       ______  __     __ ________ _______                           "
 	mgoTo 2, 6
-	mWrite	" *  |       |       |  |_|  |       |  |       |  | |  |       |    _  |  *                                    "
+	mWrite	"                 /      \                                     /      \|  \   |  \        \       \                           "
 	mgoTo 2, 7
-	mWrite	" *  |    ___|   _   |       |    ___|  |   _   |  |_|  |    ___|   | |  |  *         ╔═══════════╗         "
+	mWrite	"                |  ▓▓▓▓▓▓\ ______  ______ ____   ______      |  ▓▓▓▓▓▓\ ▓▓   | ▓▓ ▓▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓\                  "
 	mgoTo 2, 8
-	mWrite	" *  |   | __|  |_|  |       |   |___   |  | |  |       |   |___|   |_| |   *         ║ Top 3     ║   "
+	mWrite	"                | ▓▓ __\▓▓|      \|      \    \ /      \     | ▓▓  | ▓▓ ▓▓   | ▓▓ ▓▓__   | ▓▓__| ▓▓            "
 	mgoTo 2, 9
-	mWrite	" *  |   ||  |       |       |    ___|  |  |_|  |       |    ___|    __  |  *         ╠═══════════╣ "
+	mWrite	"                | ▓▓|    \ \▓▓▓▓▓▓\ ▓▓▓▓▓▓\▓▓▓▓\  ▓▓▓▓▓▓\    | ▓▓  | ▓▓\▓▓\ /  ▓▓ ▓▓  \  | ▓▓    ▓▓         "
 	mgoTo 2, 10
-	mWrite	" *  |   |_| |   _   | ||_|| |   |___   |       ||     ||   |___|   |  | |  *         ║ 1         ║  		          "
+	mWrite	"                | ▓▓ \▓▓▓▓/      ▓▓ ▓▓ | ▓▓ | ▓▓ ▓▓    ▓▓    | ▓▓  | ▓▓ \▓▓\  ▓▓| ▓▓▓▓▓  | ▓▓▓▓▓▓▓\        		          "
 	mgoTo 2, 11
-	mWrite	" *  |_______|__| |__|_|   |_|_______|  |_______| |___| |_______|___|  |_|  *         ║ 2         ║                      "
+	mWrite	"                | ▓▓__| ▓▓  ▓▓▓▓▓▓▓ ▓▓ | ▓▓ | ▓▓ ▓▓▓▓▓▓▓▓    | ▓▓__/ ▓▓  \▓▓ ▓▓ | ▓▓_____| ▓▓  | ▓▓                            "
 	mgoTo 2, 12
-	mWrite	" ***************************************************************************         ║ 3         ║ "
+	mWrite	"                 \▓▓    ▓▓\▓▓    ▓▓ ▓▓ | ▓▓ | ▓▓\▓▓     \     \▓▓    ▓▓   \▓▓▓  | ▓▓     \ ▓▓  | ▓▓                             "
 	mgoTo 2, 13
-	mWrite	"       _ __                  ___        _              _                             ╚═══════════╝ 						"
+	mWrite	"                   \▓▓▓▓▓▓  \▓▓▓▓▓▓▓\▓▓  \▓▓  \▓▓ \▓▓▓▓▓▓▓      \▓▓▓▓▓▓     \▓    \▓▓▓▓▓▓▓▓\▓▓   \▓▓     						"
 	mgoTo 2, 14
-	mWrite	"      | / / ___  ___  ___   /  _]  ___ [_] _ _  ___   | | 																				 "
+	mWrite	"                                                                                                                                     "
 	mgoTo 2, 15
-	mWrite	"      |  \ / ._]/ ._]| . \  | [_/\/ . \| || ' |/ . |  |_/ 																				 "
+	mWrite	"                                                                                     Score:                                      "
 	mgoTo 2, 16
-	mWrite	"      |_\_\\___.\___.|  _/  `____/\___/|_||_|_|\_. |  [_]																				 "
+	mWrite	"                                                                                                                  "
 	mgoTo 2, 17
-	mWrite	"                     |_|                       [___|                                                                                    "
+	mWrite	"                                                                                     ╔═══════════╗                "
+	mgoTo 2, 18
+	mWrite	"                                                                                     ║ Top 3     ║                "
 	mgoTo 2, 19
-	mWrite	"                               { try  again }																"
+	mWrite	"                                                                                     ╠═══════════╣          			"
+	mgoTo 2, 20
+	mWrite	"                                                                                     ║ 1         ║                   "
 	mgoTo 2, 21
-	mWrite	"                                  { exit }																	"
+	mWrite	"                                                     { try  again }                  ║ 2         ║              "
+	mgoTo 2, 22
+	mWrite	"                                                                                     ║ 3         ║              "
+	mgoTo 2, 23
+	mWrite	"                                                        { exit }                     ╚═══════════╝              "
 
-	mgoTo 100, 4
+
+	mgoTo 95, 15
 	MOV	EAX, score						
 	CALL WriteInt
 
@@ -820,19 +829,19 @@ change_first:
 	jmp done
 	
 done:
-	mgoTo 92, 10
+	mgoTo 95, 20
 	MOV	EAX, firstScore						
 	CALL WriteInt
 
-	mgoTo 92, 11
+	mgoTo 95, 21
 	MOV	EAX, secondScore						
 	CALL WriteInt
 
-	mgoTo 92, 12
+	mgoTo 95, 22
 	MOV	EAX, thirdScore						
 	CALL WriteInt
 	
-	mgoTo 87, 5
+	mgoTo 88, 16
 	CMP score, 50
 	JBE S01
 	CMP score, 100
