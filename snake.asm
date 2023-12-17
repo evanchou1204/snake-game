@@ -34,7 +34,7 @@ ENDM
 
 .data
 ;Window setup
-	maxX EQU 79
+	maxX EQU 99
 	maxY EQU 24
 	wallHor EQU '='
 	wallVerL EQU '|'
@@ -231,7 +231,7 @@ moveSnake PROC
 	mgoTo tailX, tailY
 	mWrite " "
 
-	mgoTo	35, 0		; Displays all info on bottom of screen
+	mgoTo	55, 0		; Displays all info on bottom of screen
 	mWrite	"Score:  "    
 	MOV	EAX, score	
 	CALL	WriteInt	
@@ -333,7 +333,7 @@ KeySync PROC
     
 	X05:
         CMP     LEFT, 0									
-        JE	X06
+        JE	    X06
         CMP     currentX, 0
         JNG     X06
         DEC     currentX
@@ -373,7 +373,7 @@ Across PROC
 		MOV currentY, maxY-1
 		RET
 	X03:
-		MOV currentX, 1
+		MOV currentX, 21
 		RET
 	X04:
 		MOV currentY, 2
@@ -386,9 +386,10 @@ generateFood PROC
 	F00:
 	CALL Random32
 	XOR	EDX, EDX				;Quickly clears EDX
-	MOV	ECX, maxX - 1							
+	MOV	ECX, maxX - 21							
 	DIV	ECX									
 	INC	DL
+	add DL, 20
 	MOV	foodX, DL
 
 	CALL Random32								
@@ -454,7 +455,7 @@ Grow PROC
 Grow ENDP
 
 IsCollision PROC									
-	CMP	currentX, 0								
+	CMP	currentX, 20								
 	JE	X02										
 	CMP	currentY, 1								
 	JE	X03
@@ -508,8 +509,8 @@ IsCollision PROC
 IsCollision ENDP
 
 showWalls PROC
-	mgoTo 0, 1
-	MOV al, maxX
+	mgoTo 20, 1
+	MOV al, maxX-20
 	inc al
 	loopWallH1:
 		mWrite wallHor
@@ -517,8 +518,8 @@ showWalls PROC
 		CMP al,0
 		loopnz loopWallH1
 
-	mgoTo 0, maxY
-	MOV al, maxX
+	mgoTo 20, maxY
+	MOV al, maxX-20
 	inc al
 	loopWallH2:
 		mWrite wallHor
@@ -531,7 +532,7 @@ showWalls PROC
 	loopWall:
 		CMP al, 1
 		JE endloopWall
-		mgoTo 0, al
+		mgoTo 20, al
 		mWrite wallVerL
 		mgoTo maxX, al
 		mWrite wallVerR
@@ -595,7 +596,7 @@ printMenuDiffread:
         jmp printMenuDiffread;
     .ENDIF
 
-    .IF (input_rec.Event.dwMousePosition.X>=34) && (input_rec.Event.dwMousePosition.X<=44) && (input_rec.Event.dwEventFlags == 0);
+    .IF (input_rec.Event.dwMousePosition.X>=55) && (input_rec.Event.dwMousePosition.X<=65) && (input_rec.Event.dwEventFlags == 0);
         movzx eax,input_rec.Event.dwMousePosition.X;
         call WriteInt;
 		.IF input_rec.Event.dwMousePosition.Y==8
@@ -718,27 +719,27 @@ DrawMenu PROC
 	CALL	ClrScr
 	CALL	showWalls
 
-	mgoTo 2, 4
+	mgoTo 22, 4
 	mWrite "      ______________________ Choose Difficulty ______________________ "
-	mgoTo 2, 6
+	mgoTo 22, 6
 	mWrite "                       ____________________________               "
-	mgoTo 2, 7
+	mgoTo 22, 7
 	mWrite "                      |                            |              "
-	mgoTo 2, 8
+	mgoTo 22, 8
 	mWrite "                      |         [  Easy  ]         |              "
-	mgoTo 2, 9
+	mgoTo 22, 9
 	mWrite "                      |                            |              "
-	mgoTo 2, 10
+	mgoTo 22, 10
 	mWrite "                      |         [ Medium ]         |              "
-	mgoTo 2, 11
+	mgoTo 22, 11
 	mWrite "                      |                            |              "
-	mgoTo 2, 12
+	mgoTo 22, 12
 	mWrite "                      |         [  Hard  ]         |              "
-	mgoTo 2, 13 
+	mgoTo 22, 13 
 	mWrite "                      |                            |              "
-	mgoTo 2, 14 
+	mgoTo 22, 14 
 	mWrite "                      |____________________________|              "
-	mgoTo 25, 20					
+	mgoTo 45, 20					
 	   
 	RET
 DrawMenu ENDP
@@ -749,13 +750,13 @@ gameOver PROC
 	mgoTo 2, 4									
 	mWrite	" ***************************************************************************	      Your score:				"	
 	mgoTo 2, 5
-	mWrite	" *   _______ _______ __   __ _______    _______ __   __ _______ ______     *                                    "
+	mWrite	" *   _______ _______ __   __ _______    _______ __   __ _______ ________   *                                    "
 	mgoTo 2, 6
-	mWrite	" *  |       |       |  |_|  |       |  |       |  | |  |       |    _ |    *                                    "
+	mWrite	" *  |       |       |  |_|  |       |  |       |  | |  |       |    _  |  *                                    "
 	mgoTo 2, 7
-	mWrite	" *  |    ___|   _   |       |    ___|  |   _   |  |_|  |    ___|   | ||    *         ╔═══════════╗         "
+	mWrite	" *  |    ___|   _   |       |    ___|  |   _   |  |_|  |    ___|   | |  |  *         ╔═══════════╗         "
 	mgoTo 2, 8
-	mWrite	" *  |   | __|  |_|  |       |   |___   |  | |  |       |   |___|   |_||_   *         ║ Top 3     ║   "
+	mWrite	" *  |   | __|  |_|  |       |   |___   |  | |  |       |   |___|   |_| |   *         ║ Top 3     ║   "
 	mgoTo 2, 9
 	mWrite	" *  |   ||  |       |       |    ___|  |  |_|  |       |    ___|    __  |  *         ╠═══════════╣ "
 	mgoTo 2, 10
