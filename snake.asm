@@ -231,7 +231,7 @@ moveSnake PROC
 	mgoTo tailX, tailY
 	mWrite " "
 
-	mgoTo	33, 0		; Displays all info on bottom of screen
+	mgoTo	35, 0		; Displays all info on bottom of screen
 	mWrite	"Score:  "    
 	MOV	EAX, score	
 	CALL	WriteInt	
@@ -730,42 +730,41 @@ DrawMenu ENDP
 
 gameOver PROC
 	CALL	Clrscr
-	CALL	showWalls
 
 	mgoTo 2, 4									
-	mWrite	"                                                   Your score:"	
+	mWrite	" ***************************************************************************	      Your score:				"	
 	mgoTo 2, 5
-	mWrite	"                 GAME OVER!!           /~\"
+	mWrite	" *   _______ _______ __   __ _______    _______ __   __ _______ ______     *                                    "
 	mgoTo 2, 6
-	mWrite	"                                      |oo )"
+	mWrite	" *  |       |       |  |_|  |       |  |       |  | |  |       |    _ |    *                                    "
 	mgoTo 2, 7
-	mWrite	"                                      _\=/_"
+	mWrite	" *  |    ___|   _   |       |    ___|  |   _   |  |_|  |    ___|   | ||    *         ╔═══════════╗         "
 	mgoTo 2, 8
-	mWrite	"                      ___        #   /  _  \       Top 3:"
+	mWrite	" *  |   | __|  |_|  |       |   |___   |  | |  |       |   |___|   |_||_   *         ║ Top 3     ║   "
 	mgoTo 2, 9
-	mWrite	"                     / ()\        \\//|/.\|\\      1          "
+	mWrite	" *  |   ||  |       |       |    ___|  |  |_|  |       |    ___|    __  |  *         ╠═══════════╣ "
 	mgoTo 2, 10
-	mWrite	"                   _|_____|_       \/  \_/  ||     2          "
+	mWrite	" *  |   |_| |   _   | ||_|| |   |___   |       ||     ||   |___|   |  | |  *         ║ 1         ║  		          "
 	mgoTo 2, 11
-	mWrite	"                  | | === | |         |\ /| ||     3          "
+	mWrite	" *  |_______|__| |__|_|   |_|_______|  |_______| |___| |_______|___|  |_|  *         ║ 2         ║                      "
 	mgoTo 2, 12
-	mWrite	"                  |_|  O  |_|         \_ _/ #"
+	mWrite	" ***************************************************************************         ║ 3         ║ "
 	mgoTo 2, 13
-	mWrite	"                   ||  O  ||          | | |"
+	mWrite	"                                                                                     ╚═══════════╝ 						"
 	mgoTo 2, 14
-	mWrite	"                   ||__*__||          | | |"
+	mWrite	"      _     ____  ____  ___       __    ___   _   _      __    __ 																					"
 	mgoTo 2, 15
-	mWrite	"                  |~ \___/ ~|         []|[]"
+	mWrite	"     | |_/ | |_  | |_  | |_)     / /`_ / / \ | | | |\ | / /`_ |_/ 																						"
 	mgoTo 2, 16
-	mWrite	"                  /=\ /=\ /=\         | | |"
+	mWrite	"     |_| \ |_|__ |_|__ |_|       \_\_/ \_\_/ |_| |_| \| \_\_/ (_) 																					"
 	mgoTo 2, 17
-	mWrite	"  ________________[_]_[_]_[_]________/_]_[_\_______________________"
+	mWrite	"																											"
 	mgoTo 2, 19
-	mWrite	"                               [ try  again ]                            "
+	mWrite	"                               { try  again }																"
 	mgoTo 2, 21
-	mWrite	"                                  [ exit ]                              "
+	mWrite	"                                  { exit }																	"
 
-	mgoTo 67, 4
+	mgoTo 100, 4
 	MOV	EAX, score						
 	CALL WriteInt
 
@@ -805,19 +804,19 @@ change_first:
 	jmp done
 	
 done:
-	mgoTo 61, 9
+	mgoTo 92, 10
 	MOV	EAX, firstScore						
 	CALL WriteInt
 
-	mgoTo 61, 10
+	mgoTo 92, 11
 	MOV	EAX, secondScore						
 	CALL WriteInt
 
-	mgoTo 61, 11
+	mgoTo 92, 12
 	MOV	EAX, thirdScore						
 	CALL WriteInt
 	
-	mgoTo 55, 6
+	mgoTo 87, 5
 	CMP score, 50
 	JBE S01
 	CMP score, 100
@@ -831,7 +830,7 @@ done:
 	JMP S06
 	
 	S01:
-		mWrite	"★ ☆ ☆ ☆ ☆"
+		mWrite	"★ ☆ ☆ ☆ ☆ "
 		JMP End07
 	S02:
 		mWrite	"★ ★ ☆ ☆ ☆"
@@ -843,12 +842,10 @@ done:
 		mWrite	"★ ★ ★ ★ ☆"
 		JMP End07
 	S05:
-		mWrite	"★ ★ ★ ★ ★"
+		mWrite	"★ ★ ★ ★ ★  "
 		JMP End07
 	S06:
-		mWrite	"★ ★ ★ ★ ★"
-		mgoTo 55, 13
-		mWrite	" Legendary!!! "
+		mWrite	"★ ★ ★ ★ ★  Legendary!!! "
 	End07:
 
 	RET			
