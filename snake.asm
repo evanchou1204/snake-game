@@ -66,6 +66,7 @@ ENDM
 	firstScore DWORD 0 ;前三高分
 	secondScore DWORD 0
 	thirdScore DWORD 0
+	addScore DWORD 10 ;不同難度增加的分數
 
 
 .code
@@ -130,6 +131,7 @@ L4:
 EasyGame ENDP
 
 MediumGame PROC
+	mov addScore, 20
     CALL generateFood
 L1:
     CALL Grow
@@ -153,6 +155,7 @@ L4:
 MediumGame ENDP
 
 HardGame PROC
+	mov addScore, 30
     CALL generateFood
 L1:
     CALL Grow
@@ -436,8 +439,9 @@ Grow PROC
         JNE X00
 
         CALL generateFood								
-        ADD bodyLength, 2	
-		ADD score, 10
+        ADD bodyLength, 2
+		mov EDX, addScore
+		ADD score, EDX
 		MOV EDX, score
 		.IF difficulty == 1
 			JMP X00                   ;不加速
@@ -829,15 +833,15 @@ change_first:
 	jmp done
 	
 done:
-	mgoTo 95, 20
+	mgoTo 93, 20
 	MOV	EAX, firstScore						
 	CALL WriteInt
 
-	mgoTo 95, 21
+	mgoTo 93, 21
 	MOV	EAX, secondScore						
 	CALL WriteInt
 
-	mgoTo 95, 22
+	mgoTo 93, 22
 	MOV	EAX, thirdScore						
 	CALL WriteInt
 	
