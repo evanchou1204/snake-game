@@ -566,7 +566,7 @@ W03:
 generateRedFood ENDP
 
 showObstacle PROC
-	add obstacle, 1
+	
 	.IF obstacle ==  1
 		mgoTo 40, 6
 		mWrite "|"
@@ -581,7 +581,7 @@ showObstacle PROC
 		mWrite "|"
 		mgoTo 80, 17
 		mWrite "|"
-	.ELSE
+	.ELSEIF obstacle == 3
 		mgoTo 60, 11
 		mWrite "|"
 		mgoTo 60, 12
@@ -608,9 +608,9 @@ Grow PROC
         JNE X03									
         CMP AL, redFoodY								
         JNE X03
+		add obstacle, 1
 		MOV redFoodX, 0 ;暫時將果實位置歸 0
 
-		CALL showObstacle
         mov EDX, addScore
 		ADD score, EDX
 	X01:
@@ -643,6 +643,7 @@ Grow PROC
 		CALL generateFood
 			
 	X03:
+		CALL showObstacle
         RET
 Grow ENDP
 
