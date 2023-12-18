@@ -50,6 +50,8 @@ ENDM
 	currentY BYTE 10
 	FoodX BYTE 0
 	FoodY BYTE 0
+	redFoodX BYTE 0
+	redFoodY BYTE 0
 	bodyLength BYTE 6
 	SnakeBody BYTE maxSize DUP(0,0)
 	SnakeChar BYTE '@'
@@ -67,6 +69,7 @@ ENDM
 	secondScore DWORD 0
 	thirdScore DWORD 0
 	addScore DWORD 10 ;不同難度增加的分數
+	obstacle DWORD 0 ;新障礙物的數量
 
 
 .code
@@ -75,6 +78,7 @@ main PROC
 L1:
 	mov bodyLength , 6
 	mov speed , 80
+	mov obstacle, 0
 	mov currentX, 40
 	mov currentY, 10
 	;INVOKE  SetDirection, 1, 0, 0, 0
@@ -402,6 +406,45 @@ generateFood PROC
 	ADD	DL, 2
 	MOV	foodY, DL
 
+	;確保果實不會長在新增的障礙物上
+	.IF obstacle == 0
+		JMP W03
+	.ELSEIF obstacle == 1
+		JMP W02
+	.ELSEIF obstacle == 2
+		JMP W01
+	.ELSEIF obstacle == 3
+		JMP W00
+	.ENDIF
+
+	W00:
+		CMP foodX, 20
+		JNE W01
+		CMP foodY, 11
+		JE F00
+		CMP foodY, 12
+		JE F00
+		CMP foodY, 13
+		JE F00
+	W01:
+		CMP foodX, 80
+		JNE W02
+		CMP foodY, 15
+		JE F00
+		CMP foodY, 16
+		JE F00
+		CMP foodY, 17
+		JE F00
+	W02:
+		CMP foodX, 40
+		JNE W03
+		CMP foodY, 6
+		JE F00
+		CMP foodY, 7
+		JE F00
+		CMP foodY, 8
+		JE F00
+W03:
 	MOV ESI, 0		;check if the food is generated on the sanke's body
 	XOR EAX, EAX
 	MOV BL, 2
@@ -429,6 +472,127 @@ generateFood PROC
 	RET
 generateFood ENDP
 
+;產生特殊果實
+generateRedFood PROC
+	CALL Randomize
+
+	F00:
+	CALL Random32
+	XOR	EDX, EDX				;Quickly clears EDX
+	MOV	ECX, maxX - 21							
+	DIV	ECX									
+	INC	DL
+	add DL, 20
+	MOV	redFoodX, DL
+
+	CALL Random32								
+	XOR	EDX, EDX
+	MOV	ECX, maxY - 3
+	DIV	ECX
+	ADD	DL, 2
+	MOV	redFoodY, DL
+
+	;確保果實不會長在新增的障礙物上
+	.IF obstacle == 0
+		JMP W03
+	.ELSEIF obstacle == 1
+		JMP W02
+	.ELSEIF obstacle == 2
+		JMP W01
+	.ELSEIF obstacle == 3
+		JMP W00
+	.ENDIF
+
+	W00:
+		CMP redFoodX, 20
+		JNE W01
+		CMP redFoodY, 11
+		JE F00
+		CMP redFoodY, 12
+		JE F00
+		CMP redFoodY, 13
+		JE F00
+	W01:
+		CMP redFoodX, 80
+		JNE W02
+		CMP redFoodY, 15
+		JE F00
+		CMP redFoodY, 16
+		JE F00
+		CMP redFoodY, 17
+		JE F00
+	W02:
+		CMP redFoodX, 40
+		JNE W03
+		CMP redFoodY, 6
+		JE F00
+		CMP redFoodY, 7
+		JE F00
+		CMP redFoodY, 8
+		JE F00
+W03:
+	MOV ESI, 0		;check if the food is generated on the sanke's body
+	XOR EAX, EAX
+	MOV BL, 2
+	MOV AL, bodyLength
+	DEC AL
+	MUL BL
+	loopF:
+		CMP ESI, EAX
+		JA F02
+		MOV BL, SnakeBody[ESI]
+		CMP redFoodX, BL
+		JNE F01
+		MOV BL, SnakeBody[ESI+1]
+		CMP redFoodY, BL
+		JE F00
+		F01:
+			ADD ESI, 2
+			JMP loopF
+
+	F02:
+		mgoTo redFoodX, redFoodY
+		mov al, 11           ;設定為藍色
+		mov ah, 0
+		call SetTextColor
+		mov [foodChar], '?' ;設定特殊果實
+		MOV	AL, foodChar
+		CALL WriteChar
+		mov al, 15           ;設定回白色
+		mov ah, 0
+		call SetTextColor
+		mov [foodChar], '#' ;設定回一般果實
+	RET
+generateRedFood ENDP
+
+showObstacle PROC
+	add obstacle, 1
+	.IF obstacle ==  1
+		mgoTo 40, 6
+		mWrite "|"
+		mgoTo 40, 7
+		mWrite "|"
+		mgoTo 40, 8
+		mWrite "|"
+	.ELSEIF obstacle == 2
+		mgoTo 80, 15
+		mWrite "|"
+		mgoTo 80, 16
+		mWrite "|"
+		mgoTo 80, 17
+		mWrite "|"
+	.ELSE
+		mgoTo 60, 11
+		mWrite "|"
+		mgoTo 60, 12
+		mWrite "|"
+		mgoTo 60, 13
+		mWrite "|"
+	.ENDIF
+
+	RET
+showObstacle ENDP
+
 Grow PROC										
 		MOV AH, currentX
         MOV AL, currentY
@@ -437,24 +601,48 @@ Grow PROC
         JNE X00									
         CMP AL, foodY								
         JNE X00
+		MOV foodX, 0 ;暫時將果實位置歸 0
+		JE X01
+	X00:
+		CMP AH, redFoodX								
+        JNE X03									
+        CMP AL, redFoodY								
+        JNE X03
+		MOV redFoodX, 0 ;暫時將果實位置歸 0
 
-        CALL generateFood								
+		CALL showObstacle
+        mov EDX, addScore
+		ADD score, EDX
+	X01:
         ADD bodyLength, 2
 		mov EDX, addScore
 		ADD score, EDX
 		MOV EDX, score
 		.IF difficulty == 1
-			JMP X00                   ;不加速
+			JMP X02                   ;不加速
 		.ELSEIF difficulty == 2
 			cmp EDX, 200              ;如果超過200分後就不再加速
-			JGE X00
+			JGE X02
 			SUB speed, 2              ;每次吃到東西就增加速度
 		.ELSEIF difficulty == 3
 			 SUB speed, 3             ;每次吃到東西就增加速度
 		.ENDIF
-
-   
-	X00:
+	X02:
+		.IF difficulty == 3
+			.IF score >= 100 && score < 130
+				CALL generateRedFood
+				JMP X03
+			.ELSEIF score >= 300 && score < 330
+				CALL generateRedFood
+				JMP X03
+			.ELSEIF score >= 500 && score < 530
+				CALL generateRedFood
+				JMP X03
+			.ENDIF
+		.ENDIF
+		CALL generateFood
+			
+	X03:
         RET
 Grow ENDP
 
@@ -467,7 +655,44 @@ IsCollision PROC
 	JE	X04
 	CMP	currentY, maxY								
 	JE	X05
+	.IF obstacle == 0
+		JMP X06
+	.ELSEIF obstacle == 1
+		JMP W02
+	.ELSEIF obstacle == 2
+		JMP W01
+	.ELSEIF obstacle == 3
+		JMP W00
+	.ENDIF
 
+	W00:
+		CMP currentX, 20
+		JNE W01
+		CMP currentY, 11
+		JE X00
+		CMP currentY, 12
+		JE X00
+		CMP currentY, 13
+		JE X00
+	W01:
+		CMP currentX, 80
+		JNE W02
+		CMP currentY, 15
+		JE X00
+		CMP currentY, 16
+		JE X00
+		CMP currentY, 17
+		JE X00
+	W02:
+		CMP currentX, 40
+		JNE X01
+		CMP currentY, 6
+		JE X00
+		CMP currentY, 7
+		JE X00
+		CMP currentY, 8
+		JE X00
+X06:
 	MOV ESI, 2
 	XOR EAX, EAX
 	MOV BL, 2
