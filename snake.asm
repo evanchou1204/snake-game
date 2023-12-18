@@ -1072,15 +1072,15 @@ done:
 	CALL WriteInt
 	
 	mgoTo 88, 16
-	CMP score, 50
-	JBE S01
 	CMP score, 100
-	JBE S02
-	CMP score, 150
-	JBE S03
+	JBE S01
 	CMP score, 200
+	JBE S02
+	CMP score, 300
+	JBE S03
+	CMP score, 400
 	JBE S04
-	CMP score, 250
+	CMP score, 500
 	JBE S05
 	JMP S06
 	
