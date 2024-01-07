@@ -81,7 +81,6 @@ L1:
 	mov obstacle, 0
 	mov currentX, 40
 	mov currentY, 10
-	;INVOKE  SetDirection, 1, 0, 0, 0
 	mov Right , 1
 	mov Left , 0
 	mov Up , 0
